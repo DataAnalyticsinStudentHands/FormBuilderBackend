@@ -13,9 +13,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -59,6 +61,7 @@ public class UsersResource {
 	@Produces({ MediaType.TEXT_HTML })
 	public Response createUser(User user) throws AppException {
 		Long createUserId = userService.createUser(user);
+		userService.requestEmailActivation(user);//Request email for activation
 		return Response.status(Response.Status.CREATED)
 				// 201
 				.entity("A new user has been created with ")
@@ -148,12 +151,19 @@ public class UsersResource {
 	@GET
 	@Path("myUser")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public User getMyUser(){
+	public Response getMyUser(){
 		Authentication auth = SecurityContextHolder.getContext()
 				.getAuthentication();
 		String username = ((UserDetails)auth.getPrincipal()).getUsername();		
 		User user = userService.getUserByName(username);
-		return user;
+		if(user.isIs_email_verified())
+			return Response.status(200)
+					.entity(new GenericEntity<User>(user) {})
+					.build();
+		else
+			return Response.status(501)
+					.entity("{\"message\":\"Unable to login. Please verify email.\"}")
+					.build();
 	}
 
 	@GET
@@ -163,9 +173,11 @@ public class UsersResource {
 			@QueryParam("detailed") boolean detailed) throws IOException,
 			AppException {
 		User userById = userService.getUserById(id);
-		return Response.status(200).entity(new GenericEntity<User>(userById) {
-		}).header("Access-Control-Allow-Headers", "X-extra-header")
-				.allow("OPTIONS").build();
+		return Response.status(200)
+				.entity(new GenericEntity<User>(userById) {})
+				.header("Access-Control-Allow-Headers", "X-extra-header")
+				.allow("OPTIONS")
+				.build();
 	}
 
 	@GET
@@ -310,5 +322,43 @@ public class UsersResource {
 		String username = ((UserDetails)auth.getPrincipal()).getUsername();		
 		User user = userService.getUserByName(username);
 		return user.getActiveStudies();
+	}
+	
+	@GET
+	@Path("{username}/forgotPassword")
+	public Response forgotPassword(@PathParam("username") String username,
+			@Context UriInfo uri) {
+
+		try {
+			User user = userService.getUserByName(username);
+			userService.requestPasswordReset(user, uri);
+		} catch (AppException e) {
+			System.out.print(e.getDeveloperMessage() + "\n" + e.getMessage()
+					+ "\n");
+			e.printStackTrace();
+		}
+
+		return Response
+				.status(Response.Status.OK)
+				.entity("An email has been sent to the address registered to this username.")
+				.build();
+	}
+
+	@GET
+	@Path("{id}/tokenValidation")
+	@Produces({ MediaType.TEXT_HTML })
+	public Response tokenValidation(@PathParam("id") Long id,
+			@QueryParam("token") String token) throws AppException {
+		return userService.validateToken(id, token);
+	}
+
+	@POST
+	@Path("{id}/tokenPasswordReset")
+	@Produces({ MediaType.TEXT_HTML })
+	public String tokenPasswordReset(@PathParam("id") Long id,
+			@FormParam("token") String token,
+			@FormParam("password") String password) throws AppException {
+		userService.tokenPasswordReset(id, token, password);
+		return "Your password has been successfully reset";
 	}
 }

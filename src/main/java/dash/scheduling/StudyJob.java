@@ -1,5 +1,6 @@
 package dash.scheduling;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,11 +37,17 @@ public class StudyJob extends QuartzJobBean{
 			e.printStackTrace();
 		}
 		//If the study has an expiration time, then add it to the list
-		if(study.getExpirationTime() != null){
-			studyService.insertExpirationTime(study.getId(), study.getExpirationTime());
+		if(study.getDuration() != null && study.getDuration() != 0){
+			studyService.insertExpirationTime(study.getId(), study.getDuration());
 		}
 		//Update user activeStudies maps
-		participants = study.getParticipants();
+		participants = new HashSet<String>();
+		for(String participant : study.getParticipants()){
+			User user = userService.getUserByName(participant);
+			if(user.isIs_email_verified()){
+				participants.add(participant);
+			}
+		}
 		updateActiveStudies();
 	}
 	

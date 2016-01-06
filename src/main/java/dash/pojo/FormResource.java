@@ -82,6 +82,9 @@ public class FormResource {
 				.entity("A new form has been created at index")
 				.header("Location", String.valueOf(createFormId))
 				.header("ObjectId", String.valueOf(createFormId))
+				.header("Access-Control-Expose-Headers", "ObjectId")
+				.header("Access-Control-Allow-Headers", "Cache-Control, Pragma, Origin, Authorization, "
+						+ "Content-Type, X-Requested-With, X-XSRF-TOKEN, ObjectId, Location")
 				.build();
 	}
 
@@ -155,17 +158,17 @@ public class FormResource {
 	}
 
 	@GET
-	@Path("{id}")
+	@Path("{formId}")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getFormById(@PathParam("id") Long id,
+	public Response getFormById(@PathParam("formId") Long formId,
 			@QueryParam("detailed") boolean detailed, @QueryParam("permissions") 
 			@DefaultValue("false") boolean permissions) throws IOException,
 			AppException {
 		try{
 		Form formById = formService
-				.getFormById(id);
+				.getFormById(formId);
 		if(permissions){
-			HashMap<String, List<Integer>> permissionsMap = formService.getPermissionsForm(id);
+			HashMap<String, String> permissionsMap = formService.getPermissionsForm(formById);
 			formById.setPermissions(permissionsMap);
 		}
 		return Response.status(200)
@@ -173,7 +176,7 @@ public class FormResource {
 				}).header("Access-Control-Allow-Headers", "X-extra-header")
 				.allow("OPTIONS").build();
 		}catch(AccessDeniedException e){
-			Form formData = formService.verifyFormExistenceById(id);
+			Form formData = formService.verifyFormExistenceById(formId);
 			formData.setQuestions(null);			
 			return Response.status(Status.UNAUTHORIZED)
 					.entity(new GenericEntity<Form>(formData) {
@@ -202,14 +205,14 @@ public class FormResource {
 	 * @throws AppException
 	 */
 	@PUT
-	@Path("{id}")
+	@Path("{formId}")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.TEXT_HTML })
-	public Response putFormById(@PathParam("id") Long id,
+	public Response putFormById(@PathParam("formId") Long formId,
 			Form form) throws AppException {
 
 		Form formById = formService
-				.verifyFormExistenceById(id);
+				.verifyFormExistenceById(formId);
 
 		if (formById == null) {
 			// resource not existent yet, and should be created under the
@@ -229,18 +232,18 @@ public class FormResource {
 					.status(Response.Status.OK)
 					// 200
 					.entity("The form you specified has been fully updated created AT THE LOCATION you specified")
-					.header("Location", String.valueOf(id)).build();
+					.header("Location", String.valueOf(formId)).build();
 		}
 	}
 
 	// PARTIAL update
 	@POST
-	@Path("{id}")
+	@Path("{formId}")
 	@Consumes({ MediaType.APPLICATION_JSON })
 	@Produces({ MediaType.TEXT_HTML })
-	public Response partialUpdateForm(@PathParam("id") Long id,
+	public Response partialUpdateForm(@PathParam("formId") Long formId,
 			Form form) throws AppException {
-		form.setId(id);
+		form.setId(formId);
 		formService.updatePartiallyForm(form);
 		return Response
 				.status(Response.Status.OK)
@@ -250,13 +253,11 @@ public class FormResource {
 	}
 	
 	@DELETE
-	@Path("{id}")
+	@Path("{formId}")
 	@Produces({ MediaType.TEXT_HTML })
-	public Response deletePost(@PathParam("id") Long id)
+	public Response deleteForm(@PathParam("formId") Long formId)
 			throws AppException {
-		Form form = formService.verifyFormExistenceById(id);
-		
-		
+		Form form = formService.verifyFormExistenceById(formId);
 		formService.deleteForm(form);
 		return Response.status(Response.Status.NO_CONTENT)// 204
 				.entity("Form successfully removed from database").build();
@@ -266,40 +267,19 @@ public class FormResource {
 	// Permissions**************************
 	
 	@POST
-	@Path("{id}/PERMISSION/{username}")
+	@Path("{formId}/PERMISSION")
 	@Produces({ MediaType.TEXT_HTML })
-	public Response updatePermission(@PathParam("username") String username,
-			@PathParam("id") Long id, @QueryParam("permissions") List<String> permissions) throws AppException {
+	public Response updatePermission(@QueryParam("username") String username,
+			@PathParam("formId") Long formId, @QueryParam("permissionRole") String permissionRole) throws AppException {
 		User user = userService.getUserByName(username);
 		if(user != null) {
-			Form form = formService.getFormById(id);
-			formService.updatePermission(user, form, permissions);
+			Form form = formService.getFormById(formId);
+			formService.updatePermission(user, form, permissionRole);
 			return Response
 				.status(Response.Status.OK)
 				.entity("PERMISSION UPDATED: User " + user.getUsername()
-						+ " given permission " + permissions + " for form "
+						+ " given permission role " + permissionRole + " for form "
 						+ form.getId()).build();
-		} else {
-			return Response.
-					status(Response.Status.NOT_FOUND)
-					.entity("USER NOT FOUND!").build();
-		}
-	}
-	
-	@POST
-	@Path("{id}/PERMISSIONADD/{user}/{permission}")
-	@Produces({ MediaType.TEXT_HTML })
-	public Response addPermission(@PathParam("user") Long userId,
-			@PathParam("id") Long id, @PathParam("permission") String permission) throws AppException {
-		User user = userService.getUserById(userId);
-		if(user != null) {
-			Form form = formService.getFormById(id);
-			formService.addPermission(user, form, permission);
-			return Response
-					.status(Response.Status.OK)
-					.entity("PERMISSION ADDED: User " + user.getUsername()
-							+ " given permission " + permission + " for form "
-							+ form.getId()).build();
 		} else {
 			return Response.
 					status(Response.Status.NOT_FOUND)
@@ -308,17 +288,18 @@ public class FormResource {
 	}
 	
 	@DELETE
-	@Path("{id}/PERMISSION/{user}/{permission}")
+	@Path("{formId}/PERMISSION")
 	@Produces({ MediaType.TEXT_HTML })
-	public Response deletePermission(@PathParam("user") Long userId,
-			@PathParam("id") Long id, @PathParam("permission") String permission) throws AppException {
-		User user = userService.getUserById(userId);
-		Form form = formService.getFormById(id);
-		formService.deletePermission(user, form, permission);
+	public Response deleteAllPermissions(@QueryParam("username") String username,
+			@PathParam("formId") Long formId) throws AppException {
+		User user = userService.getUserByName(username);
+		Form form = formService.getFormById(formId);
+		formService.deleteAllPermissions(user, form);
 		return Response
 				.status(Response.Status.OK)
-				.entity("PERMISSION ADDED: User " + user.getUsername()
-						+ " given permission " + permission + " for form "
+				.entity("PERMISSIONS DELETED: User " + user.getUsername()
+						+ "has had all permissions removed for form "
 						+ form.getId()).build();
 	}
+	
 }

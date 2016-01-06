@@ -43,7 +43,7 @@ public class QuartzInitServletContextListener implements ServletContextListener 
 		// Sleep the thread in order to allow the scheduler and timers
 		// to finish. Prevents errors and memory leaks
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -53,9 +53,8 @@ public class QuartzInitServletContextListener implements ServletContextListener 
 	private void scheduleTimeoutJob(ServletContextEvent sce) {
 		timeoutTimer = new Timer();
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MINUTE, cal.get(Calendar.MINUTE) % 5);
-		Date start = cal.getTime();
-		timeoutTimer.scheduleAtFixedRate(new TimeoutTask(sce), start,
+		cal.add(Calendar.MINUTE, 5);
+		timeoutTimer.scheduleAtFixedRate(new TimeoutTask(sce), cal.getTime(),
 				TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
 	}
 

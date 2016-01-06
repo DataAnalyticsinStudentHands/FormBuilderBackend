@@ -2,7 +2,9 @@ package dash.dao;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
@@ -18,7 +20,6 @@ import javax.persistence.Table;
 import org.apache.commons.beanutils.BeanUtils;
 
 import dash.pojo.Study;
-import dash.pojo.Study.TIMERANGE;
 
 @Entity
 @Table(name = "studies")
@@ -40,11 +41,7 @@ public class StudyEntity implements Serializable {
 	
 	@ElementCollection (fetch= FetchType.EAGER)
 	@CollectionTable(name = "fixed_times", joinColumns = {@JoinColumn(name="study_id")})
-	private Set<Date> fixedTimes;
-	
-	@ElementCollection (fetch= FetchType.EAGER)
-	@CollectionTable(name = "ranges", joinColumns = {@JoinColumn(name="study_id")})
-	private Set<TIMERANGE> ranges;
+	private Set<Calendar> fixedTimes = new HashSet<Calendar>();;
 	
 	@Column(name = "start_Date")
 	private Date startDate;
@@ -52,8 +49,8 @@ public class StudyEntity implements Serializable {
 	@Column(name = "end_Date")
 	private Date endDate;
 	
-	@Column(name = "expiration_time")
-	private Integer expirationTime;
+	@Column(name = "duration")
+	private Integer duration;
 	
 	@Column(name = "sunday")
 	private boolean sunday;
@@ -81,26 +78,6 @@ public class StudyEntity implements Serializable {
 	
 	@Column(name = "insertion_Date")
 	private Date insertionDate;
-
-	public StudyEntity(Set<String> participants, Set<Date> fixedTimes,
-			Set<TIMERANGE> ranges, Date startDate, Date endDate,
-			boolean sunday, boolean monday, boolean tuesday, boolean wednesday,
-			boolean thursday, boolean friday, boolean saturday, Long formId) {
-		super();
-		Participants = participants;
-		this.fixedTimes = fixedTimes;
-		this.ranges = ranges;
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.sunday = sunday;
-		this.monday = monday;
-		this.tuesday = tuesday;
-		this.wednesday = wednesday;
-		this.thursday = thursday;
-		this.friday = friday;
-		this.saturday = saturday;
-		this.formId = formId;
-	}
 	
 	public StudyEntity(Study form) {
 		try {
@@ -126,20 +103,12 @@ public class StudyEntity implements Serializable {
 		Participants = participants;
 	}
 
-	public Set<Date> getFixedTimes() {
+	public Set<Calendar> getFixedTimes() {
 		return fixedTimes;
 	}
 
-	public void setFixedTimes(Set<Date> fixedTimes) {
+	public void setFixedTimes(Set<Calendar> fixedTimes) {
 		this.fixedTimes = fixedTimes;
-	}
-
-	public Set<TIMERANGE> getRanges() {
-		return ranges;
-	}
-
-	public void setRanges(Set<TIMERANGE> ranges) {
-		this.ranges = ranges;
 	}
 
 	public Date getStartDate() {
@@ -246,12 +215,12 @@ public class StudyEntity implements Serializable {
 		this.studyName = studyName;
 	}
 
-	public Integer getExpirationTime() {
-		return expirationTime;
+	public Integer getDuration() {
+		return duration;
 	}
 
-	public void setExpirationTime(Integer expirationTime) {
-		this.expirationTime = expirationTime;
+	public void setDuration(Integer duration) {
+		this.duration = duration;
 	}
 
 	/**

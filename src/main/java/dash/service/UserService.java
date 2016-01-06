@@ -2,6 +2,9 @@ package dash.service;
 
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -76,7 +79,17 @@ public interface UserService {
 
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public void setRoleAdmin(User user);
+	
+	/*
+	 * ******************** Password Reset methods **********************
+	 */
 
+	public void requestPasswordReset(User user, UriInfo uri) throws AppException;
+	
+	public Response validateToken(Long id, String token) throws AppException;
+	
+	public void tokenPasswordReset(Long id, String token, String Password)throws AppException;
+	
 	/*
 	 * ******************** Helper methods **********************
 	 */
@@ -90,4 +103,7 @@ public interface UserService {
 	//It's purpose is to allow the study job to make calls to the service layer
 	//Without worrying about the permissions filtering
 	public void updateUserJob(User use) throws AppException;
+	
+	//Generates a new token and sends an email to validate 
+	public void requestEmailActivation(User user) throws AppException;
 }
