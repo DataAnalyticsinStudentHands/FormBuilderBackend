@@ -73,7 +73,7 @@ public interface FormResponseService {
 	public FormResponse getFormResponseById(Long id, Form form) throws AppException;
 	
 	//@PostFilter("hasPermission(filterObject, 'read') or hasRole('ROLE_ADMIN')")
-	@PostFilter("hasPermission(#form, 'WRITE') or hasRole('ROLE_ADMIN')")
+	@PostFilter("hasPermission(#form, 'READ') or hasRole('ROLE_ADMIN')")
 	public List<FormResponse> getFormResponsesByFormId(Long id, int numberOfFormResponses, int page, Form form) throws AppException;
 
 	/*
