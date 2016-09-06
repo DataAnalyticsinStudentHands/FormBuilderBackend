@@ -49,11 +49,11 @@ public class UserEntity implements Serializable {
 	private String username;
 
 	/** firstname of the user */
-	@Column(name = "firstName")
+	@Column(name = "first_Name")
 	private String firstName;
 
 	/** lastname of the user */
-	@Column(name = "lastName")
+	@Column(name = "last_Name")
 	private String lastName;
 
 	/** city of the user */
@@ -61,11 +61,11 @@ public class UserEntity implements Serializable {
 	private String city;
 
 	/** home phone number of the user */
-	@Column(name = "homePhone")
+	@Column(name = "home_Phone")
 	private String homePhone;
 
 	/** cellPhone number of the user */
-	@Column(name = "cellPhone")
+	@Column(name = "cell_Phone")
 	private String cellPhone;
 
 	/** email address of the user */
@@ -89,7 +89,7 @@ public class UserEntity implements Serializable {
 	@Column(name = "insertion_date")
 	private Date insertionDate;
 
-	@Column(name = "is_email_verified")
+	@Column(name = "email_verified", columnDefinition = "BIT", length = 1)
 	private boolean is_email_verified;
 	
 	@ElementCollection (fetch= FetchType.EAGER)

@@ -40,7 +40,7 @@ public class Question  implements Serializable {
 	/** Can this question be changed, possibly useful to prevent accidental removal of a
 	 * question which is critical to an organization or is a dependency for an external application */
 	@XmlElement(name = "editable")
-	@Column (name = "editable")
+	@Column (name = "editable", columnDefinition = "BIT", length = 1)
 	private boolean editable=true;
 
 	/** The order in which this question appears on the form it belongs to. */
@@ -73,7 +73,7 @@ public class Question  implements Serializable {
 	
 	/** Must the question have a response in order to submit the form */
 	@XmlElement(name = "required")
-	@Column(name = "required")
+	@Column(name = "required", columnDefinition = "BIT", length = 1)
 	private boolean required;
 	
 	/** Are there any constraints on what text may be submitted as input, ie. email, number, url ect.. */

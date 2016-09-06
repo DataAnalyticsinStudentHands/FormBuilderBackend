@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import java.math.BigInteger;
+
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -159,7 +161,9 @@ public class StudyDaoJPA2Impl implements StudyDao {
 		SQLQuery query = session.createSQLQuery(queryString);
 		List<Long> studyIds = new ArrayList<Long>();
 		for(Object object : query.list()){
-			studyIds.add(new Long((int)(object)));
+			if(object instanceof BigInteger){
+				studyIds.add(((BigInteger) object).longValue());	
+			}
 		}
 		return studyIds;
 	}
@@ -178,7 +182,7 @@ public class StudyDaoJPA2Impl implements StudyDao {
 		query.setParameter("studyId", studyId);
 		List<Long> userIds = new ArrayList<Long>();
 		for(Object object : query.list()){
-			userIds.add(new Long((int)(object)));
+			userIds.add(new Long((long)(object)));
 		}
 		return userIds;
 	}

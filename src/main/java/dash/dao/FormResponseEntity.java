@@ -55,7 +55,7 @@ public class FormResponseEntity implements Serializable {
 	@Column(name = "latest_update")
 	private Date latest_update;
 	
-	@Column(name = "is_complete")
+	@Column(name = "is_complete", columnDefinition = "BIT", length = 1)
 	private boolean is_complete;
 	
 	@Column(name = "document_folder")
@@ -63,6 +63,9 @@ public class FormResponseEntity implements Serializable {
 	
 	@Column(name = "responder_email")
 	private String responder_email;
+	
+	@Column(name = "send_receipt", columnDefinition = "BIT", length = 1)
+	private boolean send_receipt; 
 	
 	@ElementCollection(fetch= FetchType.EAGER)
 	@CollectionTable(name = "form_response_entries", joinColumns = {@JoinColumn(name="form_response_id")})
@@ -95,6 +98,7 @@ public class FormResponseEntity implements Serializable {
 		this.entries = entries;
 		this.document_folder=document_folder;
 		this.responder_email = responder_email;
+		this.send_receipt = send_receipt;
 	}
 
 

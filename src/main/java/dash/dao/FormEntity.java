@@ -62,23 +62,23 @@ public class FormEntity implements Serializable {
 	@CollectionTable(name = "questions", joinColumns = {@JoinColumn(name="form_id")})
 	private Set<Question> questions= new HashSet<Question>();
 
-	@Column(name = "public")
+	@Column(name = "public", columnDefinition = "BIT", length = 1)
 	private boolean publi;
 	
-	@Column(name = "enabled")
+	@Column(name = "enabled", columnDefinition = "BIT", length = 1)
 	private boolean enabled;
 	
 	@Enumerated(EnumType.STRING)
 	@Column(name = "theme")
 	private THEME theme;
 	
-	@Column(name = "redirect_to_url")
+	@Column(name = "redirect_to_url", columnDefinition = "BIT", length = 1)
 	private boolean redirect_to_url;
 	
-	@Column(name = "send_notification")
+	@Column(name = "send_notification", columnDefinition = "BIT", length = 1)
 	private boolean send_notification;
 	
-	@Column(name = "send_receipt")
+	@Column(name = "send_receipt", columnDefinition = "BIT", length = 1)
 	private boolean send_receipt; 
 	
 	@Column(name = "email_message")//Message for receipt email

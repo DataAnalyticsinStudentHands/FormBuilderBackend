@@ -50,30 +50,30 @@ public class StudyEntity implements Serializable {
 	private Date endDate;
 	
 	@Column(name = "duration")
-	private Integer duration;
+	private Long duration;
 	
-	@Column(name = "sunday")
+	@Column(name = "sunday", columnDefinition = "BIT", length = 1)
 	private boolean sunday;
 	
-	@Column(name = "monday")
+	@Column(name = "monday", columnDefinition = "BIT", length = 1)
 	private boolean monday;
 	
-	@Column(name = "tuesday")
+	@Column(name = "tuesday", columnDefinition = "BIT", length = 1)
 	private boolean tuesday; 
 	
-	@Column(name = "wednesday")
+	@Column(name = "wednesday", columnDefinition = "BIT", length = 1)
 	private boolean wednesday;
 	
-	@Column(name = "thursday")
+	@Column(name = "thursday", columnDefinition = "BIT", length = 1)
 	private boolean thursday; 
 	
-	@Column(name = "friday")
+	@Column(name = "friday", columnDefinition = "BIT", length = 1)
 	private boolean friday; 
 	
-	@Column(name = "saturday")
+	@Column(name = "saturday", columnDefinition = "BIT", length = 1)
 	private boolean saturday;
 	
-	@Column(name = "form_id")
+	@Column(name = "form_id", columnDefinition = "BIT", length = 1)
 	private Long formId;
 	
 	@Column(name = "insertion_Date")
@@ -215,11 +215,11 @@ public class StudyEntity implements Serializable {
 		this.studyName = studyName;
 	}
 
-	public Integer getDuration() {
+	public Long getDuration() {
 		return duration;
 	}
 
-	public void setDuration(Integer duration) {
+	public void setDuration(Long duration) {
 		this.duration = duration;
 	}
 
