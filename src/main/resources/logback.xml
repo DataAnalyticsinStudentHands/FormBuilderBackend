@@ -32,7 +32,7 @@
 
   	<!-- Application specific logs only go to file -->
 	<logger name="dash" additivity="false">
-		<level value="DEBUG" />
+		<level value="WARN" />
 		<appender-ref ref="FILE" />
 	</logger>
 	<!-- Suppress Info from other libraries -->
